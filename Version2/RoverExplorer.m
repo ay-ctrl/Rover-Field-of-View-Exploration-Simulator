@@ -95,17 +95,19 @@ classdef RoverExplorer < handle
             obj.updateFrontierPlot();
         end
 
-        function success = interpolativeMove(obj, from, to)
+        function interpolativeMove(obj, from, to)
             steps = ceil(norm(to - from) / 0.5);
-            success = true;
-            for alpha = linspace(0,1,steps)
+            if steps < 1, steps = 1; end
+            
+            for alpha = linspace(0, 1, steps)
                 pos = (1-alpha)*from + alpha*to;
-                if any(vecnorm(obj.obstacles - pos, 2, 2) < obj.radii)
-                    success = false;
-                    return;
-                end
+                
                 set(obj.hRover, 'XData', pos(1), 'YData', pos(2));
-                drawnow limitrate;
+                
+                obj.updateScores(pos(1), pos(2));
+                obj.updateRendering();
+                
+                drawnow limitrate; 
             end
         end
     end
